@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="fragment" content="!" />
+<link rel="shortcut icon" href="img/24x24.png">
+
+<title>Sync Player</title>
+
+<!-- Bootstrap core CSS -->
+{% block css %}
+<link href="css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+<!-- Custom styles for this template -->
+<link href="css/main.css" rel="stylesheet">
+</head>
+
+<body>
+  {% block content %}
+  <div ng-view ng-app="WorldCupApp" ng-controller="TopViewCtrl"></div>
+  <div id="fb-root"></div>
+  {% endblock %}
+  {% block script %}
+  <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.0.min.js"></script>
+  <script src="//ajax.aspnetcdn.com/ajax/bootstrap/3.1.1/bootstrap.min.js"></script>
+  {% endblock %}
+  <script>
+    {% if user_nickname %}WorldCupApp.user_nickname = '{{ user_nickname }}';{% endif %}
+    {% if login_url %}WorldCupApp.login_url = '{{ login_url }}';{% endif %}
+    {% if pref %}WorldCupApp.eula_accepted = '{{ pref.eulaAccepted }}'.toLowerCase();{% endif %}
+  </script>
+</body>
+</html>
