@@ -1,4 +1,4 @@
-application: your-app-id
+application: integral-plexus-631
 version: 1
 runtime: python27
 api_version: 1
@@ -9,16 +9,40 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: .*
+- url: /html
+  static_dir: html
+  mime_type: text/html
+
+- url: /css
+  static_dir: css
+  mime_type: text/css
+
+- url: /img
+  static_dir: img
+  mime_type: image
+
+- url: /fonts
+  static_dir: fonts
+  mime_type: font/opentype
+
+- url: /js/(.*)/(.*)
+  static_files: js/\1/\2
+  upload: js/(.*)/(.*)
+  mime_type: application/javascript
+
+- url: /js/(.*)
+  static_files: js/\1
+  upload: js/(.*)
+  mime_type: application/javascript
+
+- url: /.*
   script: main.app
+
+builtins:
+- remote_api: on
 
 libraries:
 - name: jinja2
   version: "2.6"
 - name: markupsafe
   version: "0.15"
-- name: webapp2
-  version: "2.5.2"
-
-builtins:
-- remote_api: on

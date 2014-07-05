@@ -1,4 +1,4 @@
-appengine-helloworld-python
+Sync Player
 ===========================
 
-This is a simple Hello World application for Google App Engine (Python)
+Sync the video playback across platform.
