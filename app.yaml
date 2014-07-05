@@ -35,11 +35,8 @@ handlers:
   upload: js/(.*)
   mime_type: application/javascript
 
-- url: /.*
+- url: .*
   script: main.app
-
-builtins:
-- remote_api: on
 
 libraries:
 - name: jinja2
