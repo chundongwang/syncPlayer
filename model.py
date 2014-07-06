@@ -18,18 +18,20 @@ class DateTimeEncoder(json.JSONEncoder):
 class Room(ndb.Model):
     """Room of video playback service"""
     # current time in second
-    current_time = ndb.IntegerProperty()
+    current_time = ndb.IntegerProperty(required=True,default=0)
     created_date = ndb.DateTimeProperty(auto_now_add=True)
-    user_id = ndb.StringProperty()
-    user_email = ndb.StringProperty()
-    name = ndb.StringProperty()
+    user_id = ndb.StringProperty(required=True)
+    user_email = ndb.StringProperty(required=True)
+    name = ndb.StringProperty(required=True)
     cover = ndb.StringProperty()
-    # NOTSTARTED,PLAYING,PAUSED,ENDED
-    state = ndb.StringProperty()
+    # NOTSTARTED,PLAYING,PAUSED,ENDED,DELETED
+    state = ndb.StringProperty(default='NOTSTARTED',choices=['NOTSTARTED', 'PAUSED', 'PLAYING', 'ENDED'])
+    video_ids = ndb.StringProperty(repeated=True)
 
     @classmethod
     def fetch_all(cls):
         key = '[%sAll]'%cls.__name__
+        logging.info('fetch_all key=%s'%key)
         result = memcache.get(key);
         if result is None:
             result = cls.query().order(cls.created_date).fetch()
@@ -39,6 +41,7 @@ class Room(ndb.Model):
     @classmethod
     def fetch_all_anonymous(cls):
         key = '[%sAllAnony]'%cls.__name__
+        logging.info('fetch_all_anonymous key=%s'%key)
         result = memcache.get(key);
         if result is None:
             result = cls.query().order(cls.created_date).fetch()
@@ -48,15 +51,28 @@ class Room(ndb.Model):
     @classmethod
     def fetch_by_name(cls, name):
         key = '[%sName-%s]'%(cls.__name__,name)
+        logging.info('fetch_by_name key=%s'%key)
         result = memcache.get(key)
         if result is None:
-            result = cls.query(cls.name==name).fetch(1)[0]
+            results = cls.query(ndb.AND(cls.name==name)).fetch(1)
+            if len(results) <= 0:
+                return None
+            result = results[0]
             memcache.set(key, result)
         return result
 
     def _post_put_hook(self, future):
-        match = future.get_result().get()
+        room = future.get_result().get()
+        logging.info('_post_put_hook room.name=%s'%room.name)
         memcache.delete_multi([
-            '[%sAll]'%cls.__name__,
-            '[%sName-%s]'%(cls.__name__,name)
+            '[%sAll]'%self.__class__.__name__,
+            '[%sName-%s]'%(self.__class__.__name__,room.name)
+            ]);
+
+    @classmethod
+    def _pre_delete_hook(cls, key):
+        room = key.get()
+        logging.info('_pre_delete_hook room.name=%s'%room.name)
+        memcache.delete_multi([
+            '[%sName-%s]'%(cls.__name__,room.name)
             ]);
