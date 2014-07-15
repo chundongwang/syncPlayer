@@ -9,31 +9,44 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: /html
-  static_dir: html
-  mime_type: text/html
-
+#Mapping URLs beginning with /css to /webapp/css
 - url: /css
-  static_dir: css
+  static_dir: webapp/css
   mime_type: text/css
 
-- url: /img
-  static_dir: img
-  mime_type: image
-
-- url: /fonts
-  static_dir: fonts
-  mime_type: font/opentype
-
-- url: /js/(.*)/(.*)
-  static_files: js/\1/\2
-  upload: js/(.*)/(.*)
+#Mapping URLs beginning with /js to /webapp/js
+- url: /js
+  static_dir: webapp/js
   mime_type: application/javascript
 
-- url: /js/(.*)
-  static_files: js/\1
-  upload: js/(.*)
+# Mapping Index page
+- url: /
+  static_files: webapp/index.html
+  upload: /
+  mime_type: text/html
+
+- url: /index\.html
+  static_files: webapp/index.html
+  upload: /index\.html
+  mime_type: text/html
+  
+# Mapping for Admin Tool
+- url: /admin
+  static_files: webapp-admin/index.html
+  upload: /admin
+  mime_type: text/html
+
+# All URLs beginning with /test and ending with .js are treated as paths to Javascript files in test/ directory
+- url: /test/(.*\.js)$
+  static_files: test/\1
+  upload: /test/(.*\.js)$
   mime_type: application/javascript
+
+# All URLs beginning with /test and ending with .html are treated as paths to HTML files in test/ directory
+- url: /test/(.*\.html)$
+  static_files: test/\1
+  upload: test/(.*\.html)$
+  mime_type: text/html
 
 - url: .*
   script: main.app

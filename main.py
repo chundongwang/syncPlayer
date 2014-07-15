@@ -9,11 +9,11 @@ import flask
 import time
 
 from model import DateTimeEncoder,Room
-
+from flask import render_template
 from google.appengine.api import users
 from google.appengine.api import memcache
 
-app = flask.Flask(__name__, static_folder='static')
+app = flask.Flask(__name__, template_folder='webapp')
 app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='t0&&r1o-uf=+5e$)3#p+)9m^qc)5zklxr7%ork7k7sm@*hmok5'
@@ -56,6 +56,10 @@ def json_response(obj):
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
+
+@app.route('/')
+def index_page():
+	return render_template('index.html')
 
 @app.route('/create_room')
 def create_room():

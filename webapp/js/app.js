@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-    <div id="player"></div>
-    <div id="log"></div>
-
-    <script>
       function $(id) {
         return document.getElementById(id);
       }
@@ -64,6 +56,3 @@
       function stopVideo() {
         player.stopVideo();
       }
-    </script>
-  </body>
-</html>
