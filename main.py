@@ -57,10 +57,6 @@ def json_response(obj):
     response.headers['Pragma'] = 'no-cache'
     return response
 
-@app.route('/')
-def index_page():
-	return render_template('index.html')
-
 @app.route('/create_room')
 def create_room():
     user = users.get_current_user()

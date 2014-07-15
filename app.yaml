@@ -20,15 +20,20 @@ handlers:
   mime_type: application/javascript
 
 # Mapping Index page
+- url: /
+  static_files: webapp/index.html
+  upload: webapp/index.html
+  mime_type: text/html
+
 - url: /index\.html
   static_files: webapp/index.html
-  upload: index\.html
+  upload: webapp/index.html
   mime_type: text/html
   
 # Mapping for Admin Tool
 - url: /admin
   static_files: webapp-admin/index.html
-  upload: admin
+  upload: webapp-admin/index.html
   mime_type: text/html
 
 # All URLs beginning with /test and ending with .js are treated as paths to Javascript files in test/ directory
