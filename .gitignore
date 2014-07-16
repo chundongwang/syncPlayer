@@ -53,6 +53,9 @@ coverage.xml
 docs/_build/
 
 
+# Eclipse stuff
+.settings/
+
 # =========================
 # Operating System Files
 # =========================
