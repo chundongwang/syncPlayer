@@ -55,6 +55,7 @@ docs/_build/
 
 # Eclipse stuff
 .settings/
+.tern-project
 
 # =========================
 # Operating System Files
