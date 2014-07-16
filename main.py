@@ -57,6 +57,83 @@ def json_response(obj):
     response.headers['Pragma'] = 'no-cache'
     return response
 
+@app.route('/room/<room_name>')
+def room_api(room_name=None):
+    user = users.get_current_user()
+    if flask.request.method == 'GET':
+        if room_name is None:
+            rooms = []
+            if not user:
+                rooms = Room.fetch_all_anonymous()
+            else:
+                rooms = Room.fetch_all()
+            return json_response([room.to_dict() for room in rooms])
+        else:
+            room = Room.fetch_by_name(room_name)
+            if room is None:
+                return json_fail(reason.NO_ROOM_FOUND)
+            return json_response(room.to_dict()) 
+    elif flask.request.method == 'POST':
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+        else:
+            room_info = flask.request.get_json(silent=True)
+            if room_info is None:
+                return json_fail(reason.INVALID_PARAMETER)
+
+            if room_info.room_name is None:
+                return json_fail(reason.ROOM_NAME_REQUIRED)
+
+            room = Room.fetch_by_name(room_info.room_name)
+            logging.info('create_room(%s):%s'%(room_info.room_name,room.__class__.__name__))
+            if room is not None:
+                return json_fail(reason.EXIST_ROOM_NAME)
+
+            room = Room(user_email=user.email(), name=room_info.room_name)
+            if room_info.current_time is not None:
+                room.current_time=int(room_info.current_time)
+            if room_info.cover is not None:
+                room.cover=room_info.cover
+            room.put()
+            return json_succ()
+    elif flask.request.method == 'PUT':
+        if room_name is None:
+            return json_fail(reason.INVALID_PARAMETER)
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+
+        room = Room.fetch_by_name(room_name)
+        logging.info('update_room(%s):%s'%(room_name,room.__class__.__name__))
+        if room is None:
+            return json_fail(reason.NO_ROOM_FOUND)
+
+        room_info = flask.request.get_json(silent=True)
+        if room_info is None:
+            return json_fail(reason.INVALID_PARAMETER)
+
+        if room_info.current_time is not None:
+            room.current_time=int(room_info.current_time)
+        if room_info.cover is not None:
+            room.cover=room_info.cover
+        room.put()
+        return json_succ()
+    elif flask.request.method == 'DELETE':
+        if room_name is None:
+            return json_fail(reason.INVALID_PARAMETER)
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+
+        room = Room.fetch_by_name(room_name)
+        logging.info('delete_room(%s):%s'%(room_name,room.__class__.__name__))
+        if room is not None:
+            room.key.delete()
+            return json_succ()
+        else:
+            return json_fail(reason.NO_ROOM_FOUND, room_name)
+
+    else:
+        return json_fail(reason.INVALID_PARAMETER)
+
 @app.route('/create_room')
 def create_room():
     user = users.get_current_user()
@@ -72,10 +149,7 @@ def create_room():
         logging.info('create_room(%s):%s'%(room_name,room.__class__.__name__))
         if room is not None:
             return json_fail("Room name already exist")
-        room = Room(user_id=user.user_id(),
-                    user_email=user.email(),
-                    name=room_name
-                    )
+        room = Room(user_email=user.email(), name=room_name)
         if current_time is not None and len(current_time)>0:
             room.current_time=int(current_time)
         if cover is not None and len(cover)>0:
