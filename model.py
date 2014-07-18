@@ -20,7 +20,7 @@ class Room(ndb.Model):
     # current time in second
     current_time = ndb.IntegerProperty(required=True,default=0)
     created_date = ndb.DateTimeProperty(auto_now_add=True)
-    user_email = ndb.StringProperty(required=True)
+    creator_email = ndb.StringProperty(required=True)
     name = ndb.StringProperty(required=True)
     cover = ndb.StringProperty()
     # NOTSTARTED,PLAYING,PAUSED,ENDED,DELETED

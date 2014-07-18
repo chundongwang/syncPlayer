@@ -29,7 +29,7 @@ handlers:
   static_files: webapp/index.html
   upload: webapp/index.html
   mime_type: text/html
-  
+
 # Mapping for Admin Tool
 - url: /admin
   static_files: webapp-admin/index.html

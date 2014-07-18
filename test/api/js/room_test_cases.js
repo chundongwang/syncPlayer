@@ -13,47 +13,60 @@ var pause_time = 200;
 QUnit.config.reorder = false;
 QUnit.config.deferred_interval = 200;
 
+function create_room_QUnit_helper(room_spec, spec_desc) {
+  QUnit.stop();
+  $.ajax({
+    type: "POST",
+    url: "/room",
+    //async: false,
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify(room_spec)
+  })
+  .done(function(data){
+    if (!!spec_desc) {
+      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
+    }
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  })
+  .fail(function(){
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  }) 
+}
+function delete_room_QUnit_helper(room_spec, spec_desc) {
+  QUnit.stop();
+  $.ajax({
+    type: "DELETE",
+    url: "/room/"+room_spec.name,
+    //async: false,
+  })
+  .done(function(data){
+    if (!!spec_desc) {
+      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of delete_room after create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
+    }
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  })
+  .fail(function(){
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  }); 
+}
+
 QUnit.module( "room with full parameters", {
   setup: function() {
     // prepare something for all following tests
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/create_room",
-      //async: false,
-      data: room_full_param
-    })
-    .done(function(data){
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with full parameters should work.");
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
-    .fail(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    }) 
+    create_room_QUnit_helper(room_full_param, "full parameters");
   },
   teardown: function() {
     // clean up after each test
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/delete_room/"+room_full_param.name,
-      //async: false,
-    })
-    .done(function(data){
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of delete_room after create_room with full parameters should work.");
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
-    .fail(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    }); 
+    delete_room_QUnit_helper(room_full_param, "full parameters");
   }
 });
 QUnit.asyncTest( "full parameters", function( assert ) {
@@ -64,44 +77,11 @@ QUnit.asyncTest( "full parameters", function( assert ) {
 QUnit.module( "room with name only", {
   setup: function() {
     // prepare something for all following tests
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/create_room",
-      //async: false,
-      data: room_name_only
-    })
-    .done(function(data){
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with name only should work.");
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
-    .fail(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    }) 
+    create_room_QUnit_helper(room_name_only, "name only");
   },
   teardown: function() {
     // clean up after each test
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/delete_room/"+room_name_only.name,
-      //async: false,
-    })
-    .done(function(data){
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of delete_room after create_room with name only should work.");
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
-    .fail(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    }); 
+    delete_room_QUnit_helper(room_name_only, "name only");
   }
 });
 QUnit.asyncTest( "full parameters", function( assert ) {
@@ -112,39 +92,18 @@ QUnit.asyncTest( "full parameters", function( assert ) {
 QUnit.module( "room list", {
   setup: function() {
     // prepare something for all following tests
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/create_room",
-      //async: false,
-      data: room_name_only
-    })
-    .always(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
+    create_room_QUnit_helper(room_name_only);
   },
   teardown: function() {
     // clean up after each test
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/delete_room/"+room_name_only.name,
-      //async: false,
-    })
-    .always(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    });
+    delete_room_QUnit_helper(room_name_only);
   }
 });
 QUnit.asyncTest( "get room list", function( assert ) {
   expect( 1 ); 
   $.ajax({
     type: "GET",
-    url: "/room_list",
+    url: "/room",
     //async: false,
   })
   .done(function(data){
@@ -205,32 +164,11 @@ QUnit.asyncTest( "send round trip", function( assert ) {
 QUnit.module( "play-pause-current", {
   setup: function() {
     // prepare something for all following tests
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/create_room",
-      //async: false,
-      data: room_name_only
-    })
-    .always(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    })
+    create_room_QUnit_helper(room_name_only);
   },
   teardown: function() {
     // clean up after each test
-    QUnit.stop();
-    $.ajax({
-      type: "GET",
-      url: "/delete_room/"+room_name_only.name,
-      //async: false,
-    })
-    .always(function(){
-      setTimeout(function() {
-        QUnit.start();
-      }, QUnit.config.deferred_interval );
-    });
+    delete_room_QUnit_helper(room_name_only);
   }
 });
 QUnit.asyncTest( "current_time before play", function( assert ) {
