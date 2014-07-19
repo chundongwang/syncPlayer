@@ -1,4 +1,4 @@
-var syncPlayerApp = angular.module('SyncPlayerApp', ['ngRoute']);
+var syncPlayerApp = angular.module('SyncPlayerApp', ['ngRoute', 'ngResource']);
 
 syncPlayerApp
 .config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {

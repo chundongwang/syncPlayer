@@ -1,5 +1,13 @@
+<div class="row" style="margin-bottom: 20px">
+  <form class="form-inline" role="form">
+    <div class="form-group">
+      <input class="form-control" type="text" placeholder="Enter room name" ng-model="newRoomName">
+    </div>
+    <button type="submit" class="btn btn-primary" ng-click="tryCreateRoom()">Create Room</button>
+  </form>
+</div>
 <div class="row">
   <div class="col-xs-6 col-md-4" ng-repeat="r in rooms">
-    <a class="btn btn-warning btn-lg" ng-href="#/room?r={{r.name}}">{{r.name}} <br/> by <br/> {{r.user_email}}</a>
+    <a class="btn btn-warning btn-lg" ng-href="#{{getRoomUrl(r.name)}}">{{r.name}}<br />{{r.creator_email}}</a>
   </div>
 </div>
