@@ -19,9 +19,10 @@ syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', 'roomService', func
   };
   
   (function updateAll() {
-    $scope.loading = false;
 
     var rooms = roomService.query(function(){
+      $scope.loading = false;
+
       $scope.rooms = rooms;
     });
 
