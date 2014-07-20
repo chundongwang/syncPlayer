@@ -1,7 +1,8 @@
 'use strict';
 
 syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', 'roomService', function($scope, $location, roomService) {
-  
+  $scope.loading = true;
+
   $scope.tryCreateRoom = function() {
     // TODO: newRoomName must be valid
     var newRoom = roomService.save({name: $scope.newRoomName}, function() {
@@ -18,6 +19,7 @@ syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', 'roomService', func
   };
   
   (function updateAll() {
+    $scope.loading = false;
 
     var rooms = roomService.query(function(){
       $scope.rooms = rooms;

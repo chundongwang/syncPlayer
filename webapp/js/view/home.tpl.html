@@ -7,6 +7,7 @@
   </form>
 </div>
 <div class="row">
+  <div ng-if="loading" class="text-center"><i alt="" class="ico-large glyphicon glyphicon-refresh spin"></i><p>加载中</p></div>
   <div class="col-xs-6 col-md-4" ng-repeat="r in rooms">
     <a class="btn btn-warning btn-lg" ng-href="#{{getRoomUrl(r.name)}}">{{r.name}}<br />{{r.creator_email}}</a>
   </div>
