@@ -28,10 +28,12 @@ _is_local = os.environ['SERVER_SOFTWARE'].startswith('Development')
 def isLocal():
     return _is_local
 
-def json_succ(extra=None):
+def json_succ(extra=None,data=None):
     resp = {"result":"SUCCEED"}
     if extra is not None:
         resp["extra"]=extra
+    if data is not None:
+        resp["data"]=data
     return json_response(resp)
 
 class reason:
@@ -41,12 +43,14 @@ class reason:
     LOGIN_REQUIRED=401
     INVALID_PARAMETER=400
 
-def json_fail(reason=None,extra=None):
+def json_fail(reason=None,extra=None,data=None):
     resp = {"result":"FAILED"}
     if reason is not None:
         resp["reason"]=reason
     if extra is not None:
         resp["extra"]=extra
+    if data is not None:
+        resp["data"]=data
     return json_response(resp)
 
 def json_response(obj):
@@ -96,7 +100,7 @@ def room_api(room_name=None):
             if "cover" in room_info:
                 room.cover=room_info["cover"]
             room.put()
-            return json_succ()
+            return json_succ(data=room.to_dict())
     elif flask.request.method == 'PUT':
         if room_name is None:
             return json_fail(reason.INVALID_PARAMETER)

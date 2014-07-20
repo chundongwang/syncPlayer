@@ -26,6 +26,10 @@ function create_room_QUnit_helper(room_spec, spec_desc) {
   .done(function(data){
     if (!!spec_desc) {
       QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
+      QUnit.assert.ok(data.data, "The ajax of create_room with "+spec_desc+" should return room info but now: "+(data.data||"<null>"));
+      if (data.data) {
+        QUnit.assert.equal(data.data.name,room_spec.name, "The ajax of create_room with "+spec_desc+" should return room info but with wrong room name: "+(data.data.name||"<unknown>"));
+      }
     }
     setTimeout(function() {
       QUnit.start();
@@ -70,7 +74,7 @@ QUnit.module( "room with full parameters", {
   }
 });
 QUnit.asyncTest( "full parameters", function( assert ) {
-  expect( 2 ); 
+  expect( 4 ); 
   QUnit.start();
 });
 
@@ -84,8 +88,8 @@ QUnit.module( "room with name only", {
     delete_room_QUnit_helper(room_name_only, "name only");
   }
 });
-QUnit.asyncTest( "full parameters", function( assert ) {
-  expect( 2 ); 
+QUnit.asyncTest( "name only", function( assert ) {
+  expect( 4 ); 
   QUnit.start();
 });
 
