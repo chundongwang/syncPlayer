@@ -43,7 +43,7 @@ QUnit.asyncTest( "name only", function( assert ) {
   QUnit.start();
 });
 
-QUnit.module( "room list", {
+QUnit.module( "room retrieval", {
   setup: function() {
     // prepare something for all following tests
     create_room_QUnit_helper(room_name_only);
@@ -54,7 +54,7 @@ QUnit.module( "room list", {
   }
 });
 QUnit.asyncTest( "get room list", function( assert ) {
-  expect( 1 ); 
+  expect( 2 ); 
   $.ajax({
     type: "GET",
     url: "/room",
@@ -62,6 +62,28 @@ QUnit.asyncTest( "get room list", function( assert ) {
   })
   .done(function(data){
     QUnit.assert.ok(data.length>0, "The count of room list should be more than zero.");
+    if (data.length > 0) {
+      QUnit.assert.equal(data[0].name, room_name_only.name, "The name of the room should be the name we specified.");
+    }
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  })
+  .fail(function(){
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  }) 
+});
+QUnit.asyncTest( "get one room", function( assert ) {
+  expect( 1 ); 
+  $.ajax({
+    type: "GET",
+    url: "/room/"+room_name_only.name,
+    //async: false,
+  })
+  .done(function(data){
+      QUnit.assert.equal(data.name, room_name_only.name, "The name of the room should be the name we specified.");
     setTimeout(function() {
       QUnit.start();
     }, QUnit.config.deferred_interval );
@@ -106,104 +128,6 @@ QUnit.asyncTest( "send round trip", function( assert ) {
     roundtrip_time = data.roundtrip;
     setTimeout(function() {
       QUnit.start();
-    }, QUnit.config.deferred_interval );
-  })
-  .fail(function(){
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  }) 
-});
-
-QUnit.module( "play-pause-current", {
-  setup: function() {
-    // prepare something for all following tests
-    create_room_QUnit_helper(room_name_only);
-  },
-  teardown: function() {
-    // clean up after each test
-    delete_room_QUnit_helper(room_name_only);
-  }
-});
-QUnit.asyncTest( "current_time before play", function( assert ) {
-  expect( 1 ); 
-  $.ajax({
-    type: "GET",
-    url: "/current_time/"+room_name_only.name,
-    //async: false,
-  })
-  .done(function(data){
-    QUnit.assert.equal(data.current_time,0, "current_time should be zero before play.");
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  })
-  .fail(function(){
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  }) 
-});
-QUnit.asyncTest( "play", function( assert ) {
-  expect( 2 ); 
-  $.ajax({
-    type: "GET",
-    url: "/play/"+room_name_only.name+"/"+play_time,
-    //async: false,
-  })
-  .done(function(data){
-    QUnit.assert.equal(data.result,"SUCCEED", "Operation play of room should work.");
-    setTimeout(function() {
-      $.ajax({
-        type: "GET",
-        url: "/current_time/"+room_name_only.name,
-        //async: false,
-      })
-      .done(function(data){
-        QUnit.assert.equal(data.current_time,play_time, "current_time should be play_time after play.");
-        setTimeout(function() {
-          QUnit.start();
-        }, QUnit.config.deferred_interval );
-      })
-      .fail(function(){
-        setTimeout(function() {
-          QUnit.start();
-        }, QUnit.config.deferred_interval );
-      });
-    }, QUnit.config.deferred_interval );
-  })
-  .fail(function(){
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  }) 
-});
-QUnit.asyncTest( "pause", function( assert ) {
-  expect( 2 ); 
-  $.ajax({
-    type: "GET",
-    url: "/pause/"+room_name_only.name+"/"+pause_time,
-    //async: false,
-  })
-  .done(function(data){
-    QUnit.assert.equal(data.result,"SUCCEED", "Operation play of room should work.");
-    setTimeout(function() {
-      $.ajax({
-        type: "GET",
-        url: "/current_time/"+room_name_only.name,
-        //async: false,
-      })
-      .done(function(data){
-        QUnit.assert.equal(data.current_time,pause_time, "current_time should be pause_time after pause.");
-        setTimeout(function() {
-          QUnit.start();
-        }, QUnit.config.deferred_interval );
-      })
-      .fail(function(){
-        setTimeout(function() {
-          QUnit.start();
-        }, QUnit.config.deferred_interval );
-      });
     }, QUnit.config.deferred_interval );
   })
   .fail(function(){

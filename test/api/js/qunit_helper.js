@@ -47,3 +47,27 @@ function delete_room_QUnit_helper(room_spec, spec_desc) {
     }, QUnit.config.deferred_interval );
   }); 
 }
+function addvideo_QUnit_helper(room_spec, video_spec, spec_desc) {
+  QUnit.stop();
+  $.ajax({
+    type: "POST",
+    url: "/room/"+room_spec.name+"/video",
+    //async: false,
+    contentType: "application/json",
+    dataType: "json",
+    data: JSON.stringify(video_spec)
+  })
+  .done(function(data){
+    if (!!spec_desc) {
+      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
+    }
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  })
+  .fail(function(){
+    setTimeout(function() {
+      QUnit.start();
+    }, QUnit.config.deferred_interval );
+  }) 
+}
