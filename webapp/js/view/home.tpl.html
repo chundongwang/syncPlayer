@@ -1,14 +1,22 @@
-<div class="row" style="margin-bottom: 20px">
-  <form class="form-inline" role="form">
-    <div class="form-group">
-      <input class="form-control" type="text" placeholder="Enter room name" ng-model="newRoomName">
-    </div>
-    <button type="submit" class="btn btn-primary" ng-click="tryCreateRoom()">Create Room</button>
-  </form>
-</div>
-<div class="row">
-  <div ng-if="loading" class="text-center"><i alt="" class="ico-large glyphicon glyphicon-refresh spin"></i><p>加载中</p></div>
-  <div class="col-xs-6 col-md-4" ng-repeat="r in rooms">
-    <a class="btn btn-warning btn-lg" ng-href="#{{getRoomUrl(r.name)}}">{{r.name}}<br />{{r.creator_email}}</a>
+<div class="jumbotron">
+  <div class="container panel">
+    <h1>Welcome to use SyncPlayer!</h1>
+    <p class="visible-md visible-lg">It's so easy to watch the video with friends throughout the world synchronously!</p>
+    <p>
+      <a class="btn btn-primary btn-lg animate-hide" role="button" data-toggle="modal" data-target="#newRoomDialog">Click to play &raquo;</a>
+    </p>
   </div>
 </div>
+<div class="container">
+  <div class="row">
+    <div ng-if="loading" class="text-center">
+      <i alt="" class="ico-large glyphicon glyphicon-refresh spin"></i>
+      <p>Loading</p>
+    </div>
+    <div class="col-xs-6 col-md-2" ng-repeat="r in rooms">
+      <a class="btn btn-warning btn-lg" ng-href="#{{getRoomUrl(r.name)}}">{{r.name}}<br />{{r.creator_email}}
+      </a>
+    </div>
+  </div>
+</div>
+<new-room-dialog></new-room-dialog>

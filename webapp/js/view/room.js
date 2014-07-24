@@ -1,4 +1,4 @@
-//'use strict';
+'use strict';
 
 syncPlayerApp.controller('RoomCtrl', [ '$scope', '$location', 'roomService', function($scope, $location, roomService) {
   $scope.loading = true;
