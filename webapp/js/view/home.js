@@ -28,4 +28,4 @@ syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', 'roomService', func
 
   })();
 
-}]);  
+}]);

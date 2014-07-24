@@ -1,10 +1,10 @@
 var room_full_param = {
-  name : "CREATE_ROOM_TEST_1",
-  cover : "CREATE_ROOM_TEST_COVER",
+  name : "ROOM_TEST_FULLNAME",
+  cover : "ROOM_TEST_FULLNAME_COVER",
   current_time : 0    
 };
 var room_name_only = {
-  name : "CREATE_ROOM_TEST_2"
+  name : "ROOM_TEST_NAME"
 };
 var roundtrip_time = null;
 var play_time = 100;
@@ -12,56 +12,6 @@ var pause_time = 200;
 
 QUnit.config.reorder = false;
 QUnit.config.deferred_interval = 200;
-
-function create_room_QUnit_helper(room_spec, spec_desc) {
-  QUnit.stop();
-  $.ajax({
-    type: "POST",
-    url: "/room",
-    //async: false,
-    contentType: "application/json",
-    dataType: "json",
-    data: JSON.stringify(room_spec)
-  })
-  .done(function(data){
-    if (!!spec_desc) {
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
-      QUnit.assert.ok(data.data, "The ajax of create_room with "+spec_desc+" should return room info but now: "+(data.data||"<null>"));
-      if (data.data) {
-        QUnit.assert.equal(data.data.name,room_spec.name, "The ajax of create_room with "+spec_desc+" should return room info but with wrong room name: "+(data.data.name||"<unknown>"));
-      }
-    }
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  })
-  .fail(function(){
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  }) 
-}
-function delete_room_QUnit_helper(room_spec, spec_desc) {
-  QUnit.stop();
-  $.ajax({
-    type: "DELETE",
-    url: "/room/"+room_spec.name,
-    //async: false,
-  })
-  .done(function(data){
-    if (!!spec_desc) {
-      QUnit.assert.equal(data.result,"SUCCEED", "The ajax of delete_room after create_room with "+spec_desc+" should work but failed with: "+(data.reason||"<unknown>"));
-    }
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  })
-  .fail(function(){
-    setTimeout(function() {
-      QUnit.start();
-    }, QUnit.config.deferred_interval );
-  }); 
-}
 
 QUnit.module( "room with full parameters", {
   setup: function() {
@@ -132,7 +82,7 @@ QUnit.asyncTest( "get round trip", function( assert ) {
     //async: false,
   })
   .done(function(data){
-    QUnit.assert.ok(data.server_timestamp>0, "The server_timestamp of roundtrip should be more than zero.");
+    QUnit.assert.ok(data.server_timestamp>0, "The server_timestamp of roundtrip should be more than zero and is: "+data.server_timestamp);
     roundtrip_time = data.server_timestamp;
     setTimeout(function() {
       QUnit.start();
@@ -152,7 +102,7 @@ QUnit.asyncTest( "send round trip", function( assert ) {
     //async: false,
   })
   .done(function(data){
-    QUnit.assert.ok(data.roundtrip>0, "The actual value of roundtrip should be more than zero.");
+    QUnit.assert.ok(data.roundtrip>0, "The actual value of roundtrip should be more than zero and is: "+data.roundtrip);
     roundtrip_time = data.roundtrip;
     setTimeout(function() {
       QUnit.start();

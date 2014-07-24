@@ -7,6 +7,7 @@ import json
 import os
 import flask
 import time
+import traceback
 
 from model import DateTimeEncoder,Room
 from flask import render_template
@@ -42,6 +43,31 @@ class reason:
     NO_ROOM_FOUND=3
     LOGIN_REQUIRED=401
     INVALID_PARAMETER=400
+    FORBIDDEN_OPERATION=403
+
+def caller(up=0):
+    '''Get file name, line number, function name and
+    source text of the caller's caller as 4-tuple:
+    (file, line, func, text).
+
+    The optional argument 'up' allows retrieval of
+    a caller further back up into the call stack.
+
+    Note, the source text may be None and function
+    name may be '?' in the returned result. In
+    Python 2.3+ the file name may be an absolute
+    path.
+    '''
+    try: # just get a few frames
+        f = traceback.extract_stack(limit=up+2)
+        if f:
+            return f[0]
+    except:
+        if isLocal():
+            traceback.print_exc()
+        pass
+    # running with psyco?
+    return ('', 0, '', None)
 
 def json_fail(reason=None,extra=None,data=None):
     resp = {"result":"FAILED"}
@@ -51,6 +77,9 @@ def json_fail(reason=None,extra=None,data=None):
         resp["extra"]=extra
     if data is not None:
         resp["data"]=data
+    if isLocal():
+        (filename, line, func, text) = caller(up=1)
+        logging.warning('error[%d] occured in %s:%s, %s.'%(reason, filename, line, func))
     return json_response(resp)
 
 def json_response(obj):
@@ -102,8 +131,6 @@ def room_api(room_name=None):
             room.put()
             return json_succ(data=room.to_dict())
     elif flask.request.method == 'PUT':
-        if room_name is None:
-            return json_fail(reason.INVALID_PARAMETER)
         if not user:
             return json_fail(reason.LOGIN_REQUIRED)
 
@@ -111,6 +138,8 @@ def room_api(room_name=None):
         logging.info('update_room(%s):%s'%(room_name,room.__class__.__name__))
         if room is None:
             return json_fail(reason.NO_ROOM_FOUND)
+        if user.email() != room.creator_email:
+            return json_fail(reason.FORBIDDEN_OPERATION)
 
         room_info = flask.request.get_json(silent=True)
         if room_info is None:
@@ -123,19 +152,90 @@ def room_api(room_name=None):
         room.put()
         return json_succ()
     elif flask.request.method == 'DELETE':
-        if room_name is None:
-            return json_fail(reason.INVALID_PARAMETER)
         if not user:
             return json_fail(reason.LOGIN_REQUIRED)
 
         room = Room.fetch_by_name(room_name)
         logging.info('delete_room(%s):%s'%(room_name,room.__class__.__name__))
         if room is not None:
-            room.key.delete()
-            return json_succ()
+            if user.email() != room.creator_email:
+                return json_fail(reason.FORBIDDEN_OPERATION)
+            else:
+                room.key.delete()
+                return json_succ()
         else:
             return json_fail(reason.NO_ROOM_FOUND, room_name)
 
+    else:
+        return json_fail(reason.INVALID_PARAMETER)
+
+@app.route('/room/<room_name>/video', methods=['GET', 'POST', 'PUT'])
+@app.route('/room/<room_name>/video/<video_index>', methods=['GET', 'DELETE'])
+def video_api(room_name, video_index=None):
+    user = users.get_current_user()
+    if flask.request.method == 'GET':
+        room = Room.fetch_by_name(room_name)
+        if room is None:
+            return json_fail(reason.NO_ROOM_FOUND)
+        if video_index is None:
+            return json_response(room.video_ids)
+        elif video_index >= len(room.video_ids):
+            return json_fail(reason.INVALID_PARAMETER)
+        else:
+            return json_response(room.video_ids[video_index])
+    elif flask.request.method == 'POST':
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+        room = Room.fetch_by_name(room_name)
+        if room is None:
+            return json_fail(reason.NO_ROOM_FOUND)
+        if user.email() != room.creator_email:
+            return json_fail(reason.FORBIDDEN_OPERATION)
+
+        video_info = flask.request.get_json(silent=True)
+        if video_info is None or "id" not in video_info:
+            return json_fail(reason.INVALID_PARAMETER)
+        room.video_ids.append(video_info["id"]);
+        room.put()
+        return json_succ()
+    elif flask.request.method == 'PUT':
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+        room = Room.fetch_by_name(room_name)
+        if room is None:
+            return json_fail(reason.NO_ROOM_FOUND)
+        if user.email() != room.creator_email:
+            return json_fail(reason.FORBIDDEN_OPERATION)
+
+        video_action = flask.request.get_json(silent=True)
+        if video_action is None:
+            return json_fail(reason.INVALID_PARAMETER)
+        if "op" not in video_action or "current_time" not in video_action or "roundtrip" not in video_action:
+            return json_fail(reason.INVALID_PARAMETER)
+        if video_action["op"] not in ['NOTSTARTED', 'PAUSED', 'PLAYING', 'ENDED']:
+            return json_fail(reason.INVALID_PARAMETER)
+        room.state = video_action["op"]
+        # Save current_time+roundtrip/2 and last updated time. 
+        # When read, it'll be now()-last_updated_time+current_time+roundtrip/2
+        room.current_time = int(video_action["current_time"]) + int(video_action["roundtrip"])/2
+        room.put()
+        return json_succ()
+    elif flask.request.method == 'DELETE':
+        if not user:
+            return json_fail(reason.LOGIN_REQUIRED)
+        room = Room.fetch_by_name(room_name)
+        if room is None:
+            return json_fail(reason.NO_ROOM_FOUND)
+        if user.email() != room.creator_email:
+            return json_fail(reason.FORBIDDEN_OPERATION)
+
+        #could only remove video_id at 0
+        if video_index != 0:
+            return json_fail(reason.INVALID_PARAMETER)
+        logging.info('delete_video(%s:%d):%s'%(room_name,video_index,room.__class__.__name__))
+        room.video_ids = room.video_ids[1:]
+        room.put()
+        return json_succ()
     else:
         return json_fail(reason.INVALID_PARAMETER)
 
