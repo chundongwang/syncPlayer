@@ -1,7 +1,5 @@
-var syncPlayerApp = angular.module('SyncPlayerApp', ['ngRoute']);
-
-syncPlayerApp
-.config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
+var syncPlayerApp = angular.module('SyncPlayerApp', ['ngRoute', 'ngResource'])
+.config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/home', {
     templateUrl: 'js/view/home.tpl.html',
     controller: 'HomeCtrl'
@@ -11,8 +9,8 @@ syncPlayerApp
   }).otherwise({
     redirectTo: '/home'
   });
-  
-  // Inject sign-in interceptor
+}])
+.config(['$httpProvider', function($httpProvider) {
   $httpProvider.interceptors.push(function(){
     return {
       'responseError': function(rejection) {
