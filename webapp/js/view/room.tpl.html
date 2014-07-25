@@ -1,2 +1,15 @@
-<h1 class="cover-heading">Cover your page.</h1>
-<sp-player room="room"></sp-player>
+<div class="jumbotron">
+  <div class="container panel">
+    <h1>{{room.name}}</h1>
+    <p class="visible-md visible-lg">{{room}}</p>
+  </div>
+</div>
+<div class="container">
+  <div class="row text-center">
+    <div ng-if="loading" class="text-center">
+      <i alt="" class="ico-large glyphicon glyphicon-refresh spin"></i>
+      <p>Loading</p>
+    </div>
+    <sp-player room="room"></sp-player>
+  </div>
+</div>

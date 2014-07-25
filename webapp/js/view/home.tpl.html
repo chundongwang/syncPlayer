@@ -14,7 +14,7 @@
       <p>Loading</p>
     </div>
     <div class="col-xs-6 col-md-2" ng-repeat="r in rooms">
-      <a class="btn btn-warning btn-lg" ng-href="#{{getRoomUrl(r.name)}}">{{r.name}}<br />{{r.creator_email}}
+      <a class="btn btn-warning btn-lg" ng-click="gotoRoom(r)">{{r.name}}<br />{{r.creator_email}}
       </a>
     </div>
   </div>

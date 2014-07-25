@@ -12,13 +12,13 @@
           <div class="form-group" ng-class="!newRoomForm.roomName.$valid ? 'has-warning': 'has-success'">
             <label for="roomName" class="col-sm-3 control-label">Room name</label>
             <div class="col-sm-9">
-              <input class="form-control" type="text" name="roomName" id="roomName" placeholder="Enter room name" ng-model="room.name" required ng-minlength="3" ng-maxlength="10" />
+              <input class="form-control" type="text" name="roomName" id="roomName" placeholder="Enter room name" ng-model="room.name" required ng-minlength="3" ng-maxlength="64" />
             </div>
           </div>
           <div class="form-group" ng-class="!newRoomForm.video.$valid ? 'has-warning': 'has-success'">
             <label for="video" class="col-sm-3 control-label">Youtube Video ID</label>
             <div class="col-sm-9">
-              <input class="form-control" type="text" name="video" id="video" placeholder="Enter Youtube video id" ng-model="room.video" required ng-minlength="7" ng-maxlength="10" />
+              <input class="form-control" type="text" name="video" id="video" placeholder="Enter Youtube video id" ng-model="room.video" required ng-minlength="3"/>
             </div>
           </div>
         </form>

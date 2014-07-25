@@ -8,7 +8,7 @@ syncPlayerApp.directive('newRoomDialog', [ '$resource', '$location', function($r
     restrict : 'E',
     scope : {},
     templateUrl : '/js/dir/new-room-dialog.tpl.html',
-    link : function(scope, elem) {
+    link : function(scope, elem, attr, ctrl) {
       reset();
 
       function reset() {
@@ -31,9 +31,7 @@ syncPlayerApp.directive('newRoomDialog', [ '$resource', '$location', function($r
                 id : scope.room.video
               }, function() {
                 if (theRoom.result === 'SUCCEED') {
-                  $location.path('/room').search({
-                    name : scope.room.name
-                  });
+                  ctrl.onNewRoomCompleted(theRoom);
                   reset();
                 }
               });
