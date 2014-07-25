@@ -67,13 +67,22 @@ class Room(ndb.Model):
         logging.info('_post_put_hook room.name=%s'%room.name)
         memcache.delete_multi([
             '[%sAll]'%self.__class__.__name__,
+            '[%sAllAnony]'%self.__class__.__name__,
             '[%sName-%s]'%(self.__class__.__name__,room.name)
             ]);
+        logging.info('_post_put_hook [%sAll] deleted'%self.__class__.__name__)
+        logging.info('_post_put_hook [%sAllAnony] deleted'%self.__class__.__name__)
+        logging.info('_post_put_hook [%sName-%s] deleted'%(self.__class__.__name__,room.name))
 
     @classmethod
     def _pre_delete_hook(cls, key):
         room = key.get()
         logging.info('_pre_delete_hook room.name=%s'%room.name)
         memcache.delete_multi([
+            '[%sAll]'%cls.__name__,
+            '[%sAllAnony]'%cls.__name__,
             '[%sName-%s]'%(cls.__name__,room.name)
             ]);
+        logging.info('_pre_delete_hook [%sAll] deleted'%cls.__name__)
+        logging.info('_pre_delete_hook [%sAllAnony] deleted'%cls.__name__)
+        logging.info('_pre_delete_hook [%sName-%s] deleted'%(cls.__name__,room.name))
