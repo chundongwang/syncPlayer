@@ -11,7 +11,7 @@ from datetime import datetime,timedelta
 import traceback
 
 from model import DateTimeEncoder,Room
-from flask import render_template
+from flask import render_template,abort
 from google.appengine.api import users
 from google.appengine.api import memcache
 
@@ -93,6 +93,12 @@ def json_response(obj):
     response.headers['Pragma'] = 'no-cache'
     return response
 
+def update_current_time(room):    
+    if room.state == "PLAYING":
+        real_current_time = timedelta(seconds=room.current_time) + (datetime.now()-room.last_update)
+        room.current_time = int(real_current_time.total_seconds())
+    return room
+
 @app.route('/room', methods=['GET', 'POST'])
 @app.route('/room/<room_name>', methods=['GET', 'PUT', 'DELETE'])
 def room_api(room_name=None):
@@ -104,11 +110,14 @@ def room_api(room_name=None):
                 rooms = Room.fetch_all_anonymous()
             else:
                 rooms = Room.fetch_all()
+            for room in rooms:
+                update_current_time(room)
             return json_response([room.to_dict() for room in rooms])
         else:
             room = Room.fetch_by_name(room_name)
             if room is None:
                 return json_fail(Reason.NO_ROOM_FOUND)
+            update_current_time(room)
             return json_response(room.to_dict()) 
     elif flask.request.method == 'POST':
         if not user:
@@ -132,6 +141,7 @@ def room_api(room_name=None):
             if "cover" in room_info:
                 room.cover=room_info["cover"]
             room.put()
+            update_current_time(room)
             return json_succ(data=room.to_dict())
     elif flask.request.method == 'PUT':
         if not user:
@@ -248,10 +258,8 @@ def video_sync_api(room_name):
     room = Room.fetch_by_name(room_name)
     if room is None:
         return json_fail(Reason.NO_ROOM_FOUND)
-    real_current_time = timedelta(seconds=room.current_time)
-    if room.state == "PLAYING":
-        real_current_time = real_current_time + (datetime.now()-room.last_update)
-    return json_response({"current_time":real_current_time.total_seconds()})
+    update_current_time(room)
+    return json_response({"current_time":room.current_time})
 
 @app.route('/roundtrip')
 @app.route('/roundtrip/<server_timestamp>')
