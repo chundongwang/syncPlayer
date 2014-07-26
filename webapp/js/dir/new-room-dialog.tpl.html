@@ -1,4 +1,4 @@
-<div class="modal fade" id="newRoomDialog" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="newRoomDialog" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -25,7 +25,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" ng-click="!!newRoomForm.$valid?tryCreateRoom():''">Create room</button>
+        <button type="button" class="btn btn-primary" ng-click="!!newRoomForm.$valid?createRoom():''">Create room</button>
       </div>
     </div>
   </div>

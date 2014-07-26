@@ -1,6 +1,6 @@
 'use strict';
 
-syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', '$resource', function($scope, $location, $resource) {
+syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', '$resource', '$window', function($scope, $location, $resource, $window) {
   $scope.loading = true;
   updateAll();
   
@@ -8,6 +8,14 @@ syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', '$resource', functi
     $location.path('/room').search({
       name : room.name
     });
+  }
+  
+  $scope.tryCreateRoom = function() {
+//    if (!!$scope.login) {
+      $('#newRoomDialog').modal('show');
+//    } else {
+//      $window.location.href = '/_ah/login?continue=/';
+//    }
   }
 
   $scope.onNewRoomCompleted = $scope.gotoRoom;

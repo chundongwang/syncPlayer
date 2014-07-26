@@ -20,7 +20,7 @@ syncPlayerApp.directive('newRoomDialog', [ '$resource', '$location', function($r
       /**
        * The method creates a new room and update with the video id. TODO: Handle error cases
        */
-      scope.tryCreateRoom = function() {
+      scope.createRoom = function() {
         var newRoom = $resource('/room').save(scope.room, function() {
           // Creating room succeeded so we update with the video id
           if (newRoom.result === 'SUCCEED') {

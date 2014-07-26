@@ -25,4 +25,5 @@ var syncPlayerApp = angular.module('SyncPlayerApp', ['ngRoute', 'ngResource'])
 }])
 .controller('RootCtrl', ['$scope', '$location', function($scope, $location) {
   $scope.path = $location.path();
+  $scope.login = null;
 }]);
