@@ -52,7 +52,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-
 # Eclipse stuff
 .settings/
 .tern-project
@@ -69,7 +68,8 @@ docs/_build/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*
