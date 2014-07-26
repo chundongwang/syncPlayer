@@ -8,15 +8,11 @@ syncPlayerApp.controller('HomeCtrl', ['$scope', '$location', '$resource', '$wind
     $location.path('/room').search({
       name : room.name
     });
-  }
+  };
   
   $scope.tryCreateRoom = function() {
-//    if (!!$scope.login) {
-      $('#newRoomDialog').modal('show');
-//    } else {
-//      $window.location.href = '/_ah/login?continue=/';
-//    }
-  }
+    $('#newRoomDialog').modal('show');
+  };
 
   $scope.onNewRoomCompleted = $scope.gotoRoom;
   

@@ -12,12 +12,14 @@ syncPlayerApp.directive('spPlayer', [ '$resource', function($resource) {
       room : '='
     },
     template : '<div id="player"></div>',
-    link : function(scope, elem) {
+    link : function(scope, elem, attr, ctrl) {
       var LATENCY_TOLERANT = 3; //in sec
       var INTERVAL = LATENCY_TOLERANT * 1000; //in msec
 
-      onYouTubeIframeAPIReady = function abc() {
-        createPlayer();
+      onYouTubeIframeAPIReady = function () {
+        if (!!scope.room) {
+          createPlayer();
+        }
       };
 
       scope.$watch('room.name', function(newVal, oldVal) {
@@ -26,9 +28,8 @@ syncPlayerApp.directive('spPlayer', [ '$resource', function($resource) {
         createPlayer();
       });
 
-      function isCreator() {
-        // TODO
-        return false;
+      function isCreator() { 
+        return scope.$parent.login == scope.room.creator_email;
       }
 
       function createPlayer() {
@@ -68,18 +69,30 @@ syncPlayerApp.directive('spPlayer', [ '$resource', function($resource) {
         function polling() {
           var room = $resource('/room/:name').get({name : scope.room.name}, function() {
             onRoomChange(room);
-            setTimeout(polling, INTERVAL);
+            if ($('#player').length > 0) {
+              setTimeout(polling, INTERVAL);
+            }
           });
         }
         
         function onRoomChange(room) {
+          if (!isPlayerInStateOf(room.state)) {
+            changeByRoomState(room.state);
+          }
           if (Math.abs(room.current_time - player.getCurrentTime()) > LATENCY_TOLERANT) {
             changeByRoomCurrentTime(room.current_time);
           }
-          if (room.state != scope.room.state) {
-            changeByRoomState(room.state);
-          }
           scope.room = room;
+        }
+        
+        function isPlayerInStateOf(state) {
+          var PlayerStates = {
+            UNSTARTED : YT.PlayerState.UNSTARTED,
+            ENDED : YT.PlayerState.ENDED,
+            PLAYING : YT.PlayerState.PLAYING,
+            PAUSED : YT.PlayerState.PAUSED
+          };
+          return PlayerStates[state] === player.getPlayerState();
         }
         
         function changeByRoomCurrentTime(time) {
@@ -90,12 +103,16 @@ syncPlayerApp.directive('spPlayer', [ '$resource', function($resource) {
           shouldIgnoreEvent = true;
           switch (state) {
             case 'NOTSTARTED':
+              player.pauseVideo();
               break;
             case 'PAUSED':
               player.pauseVideo();
               break;
             case 'PLAYING':
               player.playVideo(); // We use a flag to assure that this playVideo operation will not trigger pushToSync.
+              break;
+            case 'ENDED':
+              player.pauseVideo();
               break;
           }
         }
@@ -121,10 +138,13 @@ syncPlayerApp.directive('spPlayer', [ '$resource', function($resource) {
                   }
                   break;
                 case YT.PlayerState.PLAYING:
-                    pushToSync('PLAYING', event.target);
+                  pushToSync('PLAYING', event.target);
                   break;
                 case YT.PlayerState.PAUSED:
-                    pushToSync('PAUSED', event.target);
+                  pushToSync('PAUSED', event.target);
+                  break;
+                case YT.PlayerState.ENDED:
+                  pushToSync('ENDED', event.target); // TODO: backend should support video ending.
                   break;
               }
             },
