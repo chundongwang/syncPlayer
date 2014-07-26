@@ -10,9 +10,6 @@ var roundtrip_time = null;
 var play_time = 100;
 var pause_time = 200;
 
-QUnit.config.reorder = false;
-QUnit.config.deferred_interval = 200;
-
 QUnit.module( "room with full parameters", {
   setup: function() {
     // prepare something for all following tests

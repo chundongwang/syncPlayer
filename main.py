@@ -99,6 +99,12 @@ def update_current_time(room):
         room.current_time = int(real_current_time.total_seconds())
     return room
 
+def get_return_url(request):
+    return_url = request.referrer
+    if "X-continue-url" in request.headers:
+        return_url = request.headers["X-continue-url"]
+    return return_url
+
 @app.route('/room', methods=['GET', 'POST'])
 @app.route('/room/<room_name>', methods=['GET', 'PUT', 'DELETE'])
 def room_api(room_name=None):
@@ -261,6 +267,14 @@ def video_sync_api(room_name):
     update_current_time(room)
     return json_response({"current_time":room.current_time})
 
+@app.route('/auth', methods=['GET'])
+def authenticate_api():
+    user = users.get_current_user()
+    if user is not None:
+        return json_response({"user_email":user.email()})
+    else:
+        return json_response({"login_url":users.create_login_url(get_return_url(flask.request))})
+
 @app.route('/roundtrip')
 @app.route('/roundtrip/<server_timestamp>')
 def roundtrip(server_timestamp=None):
@@ -276,10 +290,11 @@ def invalid_parameter(error):
 
 @app.errorhandler(401)
 def require_login(error):
-    logging.info('401:%s' % flask.request.referrer)
-    login_url = users.create_login_url(flask.request.referrer)
+    return_url = get_return_url(flask.request)
+    logging.info('401:%s' % return_url)
+    login_url = users.create_login_url(return_url)
     return flask.Response('Ajax APIs requires user to <a href="%s">login</a> first.' % login_url, 401, 
-        {'WWWAuthenticate':'Basic realm="Login Required"','LoginUrl':login_url})
+        {'WWW-Authenticate':'Basic realm="Login Required"','LoginUrl':login_url})
 
 @app.errorhandler(404)
 def page_not_found(error):

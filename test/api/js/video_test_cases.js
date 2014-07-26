@@ -12,9 +12,6 @@ var play_time = 100;
 var play_pending_duration = 3; // in second like play time and pause time
 var pause_time = 200;
 
-QUnit.config.reorder = false;
-QUnit.config.deferred_interval = 200;
-
 QUnit.module( "video add/remove", {
   setup: function() {
     // prepare something for all following tests

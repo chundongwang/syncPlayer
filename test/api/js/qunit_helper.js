@@ -1,3 +1,6 @@
+QUnit.config.reorder = false;
+QUnit.config.deferred_interval = 200;
+
 function create_room_QUnit_helper(room_spec, spec_desc) {
   QUnit.stop();
   $.ajax({
